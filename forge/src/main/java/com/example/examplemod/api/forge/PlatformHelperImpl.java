@@ -1,8 +1,8 @@
-package com.example.examplemod.api.neoforge;
+package com.example.examplemod.api.forge;
 
 import lombok.experimental.UtilityClass;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.FMLLoader;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 @SuppressWarnings("unused")
 @UtilityClass
