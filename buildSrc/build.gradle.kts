@@ -16,7 +16,7 @@ dependencies {
 
     implementation("tools.jackson.core:jackson-core:3.1.2")
     implementation("tools.jackson.core:jackson-databind:3.1.2")
-    implementation("tools.jackson.dataformat:jackson-dataformat-toml:3.1.2")
+    implementation("io.hotmoka:toml4j:0.7.3")
 
     implementation(libs.shadow)
     implementation(libs.architectury.plugin)

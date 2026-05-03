@@ -1,6 +1,6 @@
-val mod = ModData()
+val mod = ModInfo()
 
-data class ModData(
+data class ModInfo(
     val id: String = "examplemod",
     val group: String = "com.example.examplemod",
     val version: String = "0.1.0",
