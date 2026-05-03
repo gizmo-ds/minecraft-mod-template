@@ -1,11 +1,13 @@
 {
   "schemaVersion": 1,
-  "id": "examplemod",
-  "version": "0.1.0",
-  "name": "Example Mod",
-  "description": "",
-  "authors": [],
-  "license": "All Rights Reserved.",
+  "id": "generated-at-build-time",
+  "version": "generated at build time",
+  "name": "generated at build time",
+  "description": "generated at build time",
+  "authors": [
+    "generated at build time"
+  ],
+  "license": "generated at build time",
   "environment": "*",
   "entrypoints": {
     "main": [
