@@ -1,8 +1,3 @@
-import tools.jackson.databind.ObjectMapper
-import tools.jackson.databind.node.ArrayNode
-import tools.jackson.databind.node.ObjectNode
-import tools.jackson.dataformat.toml.TomlMapper
-
 plugins {
     id("mcmod-base")
     id("com.gradleup.shadow")
@@ -33,84 +28,48 @@ dependencies {
     shadowBundle(project(path = ":common", configuration = "transformProduction$platformName"))
 }
 
-val generatePlatformResources = tasks.register("generatePlatformResources") {
-    description = "generatePlatformResources"
-
-    val outputDir = layout.buildDirectory.dir("generated/platform-resources")
-    outputs.dir(outputDir)
-
-    doLast {
-        when (project.name) {
-            "fabric" -> {
-                val file = outputDir.get().file("fabric.mod.json").asFile
-                file.parentFile.mkdirs()
-
-                val mapper = ObjectMapper()
-                val json = mapper.readTree(
-                    file("src/main/resources/fabric.mod.json").reader()
-                ) as ObjectNode
-
-                json.let {
-                    it.put("id", mod.id)
-                    it.put("name", mod.name)
-                    it.put("version", mod.version)
-                    it.put("description", mod.description)
-                    it.put("license", mod.license)
-                    it.put("icon", "${mod.id}_logo.png")
-                    it.set("authors", mapper.valueToTree<ArrayNode>(mod.authors))
-                    it.set("contact", mapper.valueToTree<ObjectNode>(mod.contact))
-                }
-
-                mapper.writerWithDefaultPrettyPrinter()
-                    .writeValue(file.writer(), json)
-            }
-
-            "neoforge", "forge" -> {
-                val modsFile = if (project.name == "neoforge") "neoforge.mods.toml" else "mods.toml"
-                val file = outputDir.get().file("META-INF/$modsFile").asFile
-                file.parentFile.mkdirs()
-
-                val mapper = TomlMapper()
-                val toml = mapper.readTree(
-                    file("src/main/resources/META-INF/$modsFile").reader()
-                ) as ObjectNode
-
-                toml.let { root ->
-                    root.put("license", mod.license)
-                    (root.get("mods").get(0) as ObjectNode).let { mods ->
-                        mods.put("modId", mod.id)
-                        mods.put("version", mod.version)
-                        mods.put("displayName", mod.name)
-                        mods.put("description", mod.description)
-                        mods.put("logoFile", "${mod.id}_logo.png")
-                        mods.put("authors", mod.authors.joinToString(", "))
-                        mod.contact.forEach { (key, value) ->
-                            when (key) {
-                                "homepage" -> mods.put("displayURL", value)
-                                "issues" -> root.put("issueTrackerURL", value)
-                            }
-                        }
-                    }
-                    if (mod.id != "examplemod") (root.get("dependencies") as ObjectNode).let { it ->
-                        it.set(mod.id, it.get("examplemod") as ArrayNode)
-                        it.remove("examplemod")
-                    }
-                }
-
-                mapper.writer()
-                    .writeValue(file.writer(), toml)
-            }
-        }
-    }
-}
-
 tasks {
     val copyLicense: CopySpec by project(":common").extra
 
-    sourceSets.named("main") { resources.srcDir(generatePlatformResources) }
+    val generatePlatformMetadata = tasks.register("generatePlatformMetadata") {
+        description = "Generates platform-specific mod metadata (Fabric / Forge / NeoForge)"
+
+        val platforms = mapOf(
+            "fabric" to PlatformMeta(
+                input = "src/main/resources/fabric.mod.json",
+                output = "fabric.mod.json",
+                generator = { ctx -> generateFabricMetadata(ctx) }
+            ),
+            "neoforge" to PlatformMeta(
+                input = "src/main/resources/META-INF/neoforge.mods.toml",
+                output = "META-INF/neoforge.mods.toml",
+                generator = { ctx -> generateNeoForgeMetadata(ctx) }
+            ),
+            "forge" to PlatformMeta(
+                input = "src/main/resources/META-INF/mods.toml",
+                output = "META-INF/mods.toml",
+                generator = { ctx -> generateNeoForgeMetadata(ctx) }
+            )
+        )
+        val outputDir = layout.buildDirectory.dir("generated/platform-resources")
+        outputs.dir(outputDir)
+        platforms[project.name]?.let { meta -> inputs.file(project.file(meta.input)) }
+        val gen = outputDir.map { dir ->
+            val meta = platforms[project.name] ?: return@map
+            meta.generator(
+                GenerationContext(
+                    project.file(meta.input),
+                    dir.file(meta.output).asFile,
+                )
+            )
+        }
+        doLast { gen.get() }
+    }
+
+    sourceSets.named("main") { resources.srcDir(generatePlatformMetadata) }
 
     processResources {
-        dependsOn(generatePlatformResources)
+        dependsOn(generatePlatformMetadata)
 
         val expandProps = mapOf(
             "version" to mod.version,
