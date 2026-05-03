@@ -21,5 +21,5 @@ data class ModData(
         "issues" to "https://github.com/gizmo-ds/minecraft-mod-template/issues"
     ),
 
-    val javaVersion: Int = 25
+    val javaVersion: Int = 21
 )

@@ -9,6 +9,4 @@ repositories {
 dependencies {
     @Suppress("USELESS_IS_CHECK")
     if (libs.neoforge is Provider<*>) neoForge(libs.create("neoforge")) else neoForge(libs.neoforge)
-
-    runtimeOnly(libs.neoforge.bettermodlist)
 }

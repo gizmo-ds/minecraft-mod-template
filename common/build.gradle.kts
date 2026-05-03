@@ -7,7 +7,7 @@ architectury {
 }
 
 dependencies {
-    implementation(libs.fabric.loader)
+    modImplementation(libs.fabric.loader)
 
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")

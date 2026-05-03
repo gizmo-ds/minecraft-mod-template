@@ -12,6 +12,6 @@ public class PlatformHelperImpl {
     }
 
     public boolean isDevelopmentEnvironment() {
-        return !FMLLoader.getCurrent().isProduction();
+        return !FMLLoader.isProduction();
     }
 }

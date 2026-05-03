@@ -7,13 +7,14 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.fabric.loader)
+    modImplementation(libs.fabric.loader)
 
-    runtimeOnly(libs.fabric.api)
-    runtimeOnly(libs.fabric.modmenu)
+    modRuntimeOnly(libs.fabric.api)
+    modRuntimeOnly(libs.fabric.modmenu)
 }
 
-// shadow gradle example
+// The following code demonstrates how to use the Shadow Gradle plugin.
+// In most cases, you can safely remove it :)
 dependencies.implementation("net.objecthunter:exp4j:0.4.8").let { if (it != null) dependencies.shadowBundle(it) }
 tasks.shadowJar {
     relocate("net.objecthunter.exp4j", "${mod.group}.libs.exp4j")

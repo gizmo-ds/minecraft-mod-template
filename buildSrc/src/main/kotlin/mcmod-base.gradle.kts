@@ -1,17 +1,35 @@
 plugins {
     id("java-library")
     id("architectury-plugin")
-    id("dev.architectury.loom-no-remap")
+    id("dev.architectury.loom")
 }
 
 val libs = the<org.gradle.accessors.dm.LibrariesForLibs>()
+val mcVersion = libs.versions.minecraft.get()
 
 base {
-    archivesName.set("${mod.id}-${project.name}-${libs.versions.minecraft.get()}")
+    archivesName.set("${mod.id}-${project.name}-$mcVersion")
+}
+
+@Suppress("UnstableApiUsage")
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven("https://maven.parchmentmc.org/") { name = "ParchmentMC" }
+        }
+        filter {
+            includeGroupAndSubgroups("org.parchmentmc.data")
+        }
+    }
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${libs.versions.minecraft.get()}")
+    minecraft("net.minecraft:minecraft:$mcVersion")
+    @Suppress("UnstableApiUsage")
+    "mappings"(loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-$mcVersion:${libs.versions.parchment.get()}@zip")
+    })
 }
 
 java {
