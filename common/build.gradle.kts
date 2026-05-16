@@ -3,7 +3,7 @@ plugins {
 }
 
 architectury {
-    common(rootProject.childProjects.keys.filter { listOf("fabric", "forge", "neoforge").contains(it) })
+    common(mod.platforms)
 }
 
 dependencies {

@@ -1,3 +1,5 @@
+import net.fabricmc.loom.util.ModPlatform
+
 val mod = ModInfo()
 
 data class ModInfo(
@@ -22,5 +24,9 @@ data class ModInfo(
         "issues" to "https://github.com/gizmo-ds/minecraft-mod-template/issues"
     ),
 
+    val platforms: List<String> = listOf(
+        ModPlatform.NEOFORGE.id(), ModPlatform.FORGE.id(),
+        ModPlatform.FABRIC.id(), ModPlatform.QUILT.id()
+    ),
     val javaVersion: Int = 17
 )
