@@ -23,6 +23,10 @@ configurations {
     configurations.getByName("development$platformName").extendsFrom(common)
 }
 
+loom {
+    runs.getByName("client").programArgs.addAll(listOf("--username", "Dev"))
+}
+
 dependencies {
     common(project(path = ":common", configuration = "namedElements")) { isTransitive = false }
     shadowBundle(project(path = ":common", configuration = "transformProduction$platformName"))
