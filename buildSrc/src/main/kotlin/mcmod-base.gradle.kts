@@ -39,9 +39,9 @@ fun CopySpec.licenseFile(name: String) {
 project(":common").extra["copyLicense"] = copyLicense
 
 tasks {
-    named<Jar>("sourcesJar") {
-        with(copyLicense)
-    }
+    jar { with(copyLicense) }
+
+    named<Jar>("sourcesJar") { with(copyLicense) }
 
     processResources { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
 
