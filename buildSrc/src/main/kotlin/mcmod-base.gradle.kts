@@ -21,19 +21,14 @@ java {
 }
 
 val copyLicense = copySpec {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
-    licenseFile("LICENSE")
-    licenseFile("NOTICE")
+    if (!mod.platforms.contains(name.lowercase())) listOf("LICENSE", "NOTICE").forEach { n ->
+        from(rootProject.file(n)) { into("") }
+        from(rootProject.file("assets/custom/$n")) { rename { n }; into("") }
+    }
     from(project.file("third-party-licenses")) {
         into("third-party-licenses")
         exclude("**/.gitkeep")
     }
-}
-
-fun CopySpec.licenseFile(name: String) {
-    from(rootProject.file(name)) { into("") }
-    from(rootProject.file("assets/custom/$name")) { rename { name }; into("") }
 }
 
 project(":common").extra["copyLicense"] = copyLicense
