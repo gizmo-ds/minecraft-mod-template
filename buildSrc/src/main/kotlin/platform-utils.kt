@@ -30,6 +30,8 @@ fun generateFabricMetadata(ctx: GenerationContext) {
         it.put("icon", "${mod.id}_logo.png")
         it.set("authors", mapper.valueToTree<ArrayNode>(mod.authors))
         it.set("contact", mapper.valueToTree<ObjectNode>(mod.contact))
+        if (mod.contributors.isNotEmpty())
+            it.set("contributors", mapper.valueToTree<ArrayNode>(mod.contributors))
     }
     ctx.output.writer().use {
         mapper.writerWithDefaultPrettyPrinter().writeValue(it, json)
@@ -42,6 +44,7 @@ fun generateNeoForgeMetadata(ctx: GenerationContext) {
     val toml = Toml().read(ctx.input).toMap()
     toml.let { root ->
         root["license"] = mod.license
+        val modmenu = root.getPath<MutableMap<String, Any>>("modproperties", "modmenu") ?: mutableMapOf()
         @Suppress("UNCHECKED_CAST")
         (root["mods"] as ArrayList<HashMap<String, Any>>)[0].let { mods ->
             mods["modId"] = mod.id
@@ -54,14 +57,27 @@ fun generateNeoForgeMetadata(ctx: GenerationContext) {
                 when (key) {
                     "homepage" -> mods["displayURL"] = value
                     "issues" -> root["issueTrackerURL"] = value
+                    "sources" -> modmenu["sources"] = value
                 }
             }
             (root["dependencies"] as HashMap<String, Any?>).let {
                 it.remove("generated-at-build-time")?.let { v -> it[mod.id] = v }
             }
         }
+        if (mod.contributors.isNotEmpty()) modmenu["contributors"] = mod.contributors
+        if (modmenu.isNotEmpty()) {
+            if (!root.containsKey("modproperties")) root["modproperties"] = mutableMapOf<String, Any>()
+            @Suppress("UNCHECKED_CAST")
+            (root["modproperties"] as HashMap<String, Any>)["modmenu"] = modmenu
+        }
     }
     ctx.output.writer().use { writer ->
         TomlWriter().write(toml, writer)
     }
+}
+
+inline fun <reified T> Map<String, *>.getPath(vararg path: String): T? {
+    var current: Any? = this
+    for (key in path) current = (current as? Map<*, *>)?.get(key) ?: return null
+    return current as? T
 }
