@@ -6,6 +6,8 @@
       <w>examplemod</w>
       <w>fabricloader</w>
       <w>mcmod</w>
+      <w>modmenu</w>
+      <w>modproperties</w>
     </words>
   </dictionary>
 </component>
